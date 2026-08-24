@@ -7,6 +7,9 @@
         <field name="model">repair.order</field>
         <field name="inherit_id" ref="repair.view_repair_order_form"/>
         <field name="arch" type="xml">
+            <xpath expr="//field[@name='partner_id']" position="attributes">
+                <attribute name="domain">[('is_manufacturer', '=', False), ('user_ids', '=', False)]</attribute>
+            </xpath>
             <xpath expr="//field[@name='partner_id']" position="after">
                 <field name="manufacturer_id" />
             </xpath>

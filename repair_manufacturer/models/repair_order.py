@@ -9,3 +9,7 @@ class RepairOrder(models.Model):
         string="Product Manufacturer",
         help= "Device manufacturer or OEM brand (e.g., Apple, Samsung, Xiaomi)"
     )
+    partner_id = fields.Many2one(
+        comodel_name="res.partner",
+        domain=[("is_manufacturer","=",False),('user_ids', '=', False)],  
+    )
