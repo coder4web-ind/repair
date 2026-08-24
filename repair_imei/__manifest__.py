@@ -4,7 +4,7 @@
     mobile devices in repairs and manufacturing''',
     'version': '18.0.1.0.0',
     'category': 'Manufacturing/Repair',
-    'author': 'Your Name, Odoo Community Association (OCA)',
+    'author': 'Coder4web, Odoo Community Association (OCA)',
     'website': 'https://github.com/OCA/repair',
     'license': 'AGPL-3',
     'development_status': 'Alpha',
