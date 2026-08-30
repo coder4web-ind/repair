@@ -1,4 +1,4 @@
-from odoo import api, fields, models, _
+from odoo import _, api, fields, models
 from odoo.exceptions import ValidationError
 
 
@@ -41,7 +41,7 @@ class RepairOrder(models.Model):
             # ):
             #     imei_settings = "yes" if record.manufacturer_id.imei_required else "no"
 
-            record.imei_required = (imei_settings == "yes")
+            record.imei_required = imei_settings == "yes"
 
     @staticmethod
     def _imei_luhn_is_valid(value):
@@ -54,9 +54,9 @@ class RepairOrder(models.Model):
 
         digits = [int(digit) for digit in imei_clean]
         total = 0
-        
+
         for idx, digit in enumerate(reversed(digits)):
-            if idx % 2 == 1:  
+            if idx % 2 == 1:
                 doubled = digit * 2
                 total += doubled - 9 if doubled > 9 else doubled
             else:
@@ -76,13 +76,13 @@ class RepairOrder(models.Model):
                     "title": _("Invalid IMEI Format"),
                     "message": _(
                         "The entered IMEI (%s) does not pass the standard Luhn checksum test."
-                    ) % self.imei_no,
+                    )
+                    % self.imei_no,
                 }
             }
 
     # @api.constrains("imei_no", "product_id", "manufacturer_id")
     @api.constrains("imei_no", "product_id")
-
     def _check_valid_imei(self):
         for record in self:
             raw_imei = record.imei_no or ""
@@ -95,7 +95,9 @@ class RepairOrder(models.Model):
 
             if imei_clean and not self._imei_luhn_is_valid(imei_clean):
                 raise ValidationError(
-                    _("The IMEI number '%s' is invalid. Please enter a valid 15-digit IMEI.")
+                    _(
+                        "The IMEI number '%s' is invalid. Please enter a valid 15-digit IMEI."
+                    )
                     % record.imei_no
                 )
 

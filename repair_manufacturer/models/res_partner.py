@@ -1,10 +1,14 @@
-from odoo import fields,models,api,_
-from odoo.exceptions import ValidationError
+# Copyright 2026 Coder4web
+# License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
+
+from odoo import fields, models
+
 
 class ResPartner(models.Model):
     _inherit = "res.partner"
+
     is_manufacturer = fields.Boolean(
-        string="Is Manufacturer",
         default=False,
         help="Check if this partner is an OEM or device manufacturer.",
+        index=True,
     )

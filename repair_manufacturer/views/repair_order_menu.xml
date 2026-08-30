@@ -1,17 +1,14 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo>
-
     <!-- Dedicated List View for Manufacturers -->
     <record id="view_partner_manufacturer_tree" model="ir.ui.view">
         <field name="name">res.partner.manufacturer.list</field>
         <field name="model">res.partner</field>
         <field name="arch" type="xml">
             <list string="Manufacturers" sample="1">
-                <field name="image_128" 
-                       widget="image" 
-                       string="Logo"/>
-                <field name="display_name" string="Manufacturer Name"/>
-                <field name="ref" string="Code"/>
+                <field name="image_128" widget="image" string="Logo" />
+                <field name="display_name" string="Manufacturer Name" />
+                <field name="ref" string="Code" />
             </list>
         </field>
     </record>
@@ -27,12 +24,15 @@
             'default_is_company': True
         }</field>
         <!-- Explicit View Ordering -->
-        <field name="view_ids" eval="[
+        <field
+            name="view_ids"
+            eval="[
             (5, 0, 0),
             (0, 0, {'view_mode': 'list', 'view_id': ref('view_partner_manufacturer_tree')}),
             (0, 0, {'view_mode': 'kanban'}),
             (0, 0, {'view_mode': 'form'})
-        ]"/>
+        ]"
+        />
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
                 Create a new Product Manufacturer
@@ -41,10 +41,11 @@
     </record>
 
     <!-- Menu Item in Repair Configuration -->
-    <menuitem id="menu_repair_manufacturer"
-              name="Manufacturers"
-              parent="repair.repair_menu_config"
-              action="action_repair_manufacturer_partner"
-              sequence="10"/>
-
+    <menuitem
+        id="menu_repair_manufacturer"
+        name="Manufacturers"
+        parent="repair.repair_menu_config"
+        action="action_repair_manufacturer_partner"
+        sequence="10"
+    />
 </odoo>

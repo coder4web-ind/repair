@@ -1,5 +1,4 @@
-from odoo import api, fields, models,_
-from odoo.exceptions import ValidationError
+from odoo import api, fields, models
 
 
 class RepairOrder(models.Model):
@@ -14,7 +13,7 @@ class RepairOrder(models.Model):
         comodel_name="product.category",
         compute="_compute_allowed_category_ids",
         string="Allowed Categories",
-        store=False
+        store=False,
     )
 
     @api.depends("manufacturer_id")
@@ -23,7 +22,7 @@ class RepairOrder(models.Model):
             if not repair.manufacturer_id:
                 repair.allowed_category_ids = False
                 continue
-            
+
             products = self.env["product.product"].search(
                 [("manufacturer_id", "=", repair.manufacturer_id.id)]
             )
