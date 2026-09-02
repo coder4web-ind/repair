@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Sample Manufacturer Demo Record -->
+        <record id="res_partner_manufacturer_apple" model="res.partner">
+            <field name="name">Apple (Sample OEM)</field>
+            <field name="is_manufacturer" eval="True"/>
+            <field name="company_type">company</field>
+        </record>
+    </data>
+</odoo>
