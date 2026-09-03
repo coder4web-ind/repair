@@ -1,8 +1,13 @@
-from odoo import _, api, fields, models
+# pylint: disable=abstract-method
+"""Handle custom business logic for IMEI validation on repair orders."""
+
+from odoo import api, fields, models
 from odoo.exceptions import ValidationError
 
 
 class RepairOrder(models.Model):
+    """Inherited Repair Order tracking model context."""
+
     _inherit = "repair.order"
 
     imei_no = fields.Char(
@@ -16,30 +21,25 @@ class RepairOrder(models.Model):
     )
 
     @api.depends(
+        "product_id",
         "product_id.imei_required",
         "product_id.categ_id.imei_required",
-        # "manufacturer_id.imei_required",
     )
     def _compute_imei_required(self):
         for record in self:
-            imei_settings = "parent"
+            if not record.product_id:
+                record.imei_required = False
+                continue
 
-            if record.product_id and hasattr(record.product_id, "imei_required"):
-                imei_settings = record.product_id.imei_required or "parent"
+            imei_settings = (
+                getattr(record.product_id, "imei_required", "parent") or "parent"
+            )
 
-            if (
-                imei_settings == "parent"
-                and record.product_id.categ_id
-                and hasattr(record.product_id.categ_id, "imei_required")
-            ):
-                imei_settings = record.product_id.categ_id.imei_required or "no"
-
-            # if (
-            #     imei_settings == "parent"
-            #     and record.manufacturer_id
-            #     and hasattr(record.manufacturer_id, "imei_required")
-            # ):
-            #     imei_settings = "yes" if record.manufacturer_id.imei_required else "no"
+            if imei_settings == "parent" and record.product_id.categ_id:
+                cat_required = getattr(
+                    record.product_id.categ_id, "imei_required", False
+                )
+                imei_settings = "yes" if cat_required else "no"
 
             record.imei_required = imei_settings == "yes"
 
@@ -54,7 +54,6 @@ class RepairOrder(models.Model):
 
         digits = [int(digit) for digit in imei_clean]
         total = 0
-
         for idx, digit in enumerate(reversed(digits)):
             if idx % 2 == 1:
                 doubled = digit * 2
@@ -67,22 +66,23 @@ class RepairOrder(models.Model):
     @api.onchange("imei_no")
     def _onchange_imei_no_warning(self):
         if not self.imei_no:
-            return
+            return False
 
         imei_clean = self.imei_no.strip().replace(" ", "").replace("-", "")
         if imei_clean and not self._imei_luhn_is_valid(imei_clean):
             return {
                 "warning": {
-                    "title": _("Invalid IMEI Format"),
-                    "message": _(
-                        "The entered IMEI (%s) does not pass the standard Luhn checksum test."
-                    )
-                    % self.imei_no,
+                    "title": self.env._("Invalid IMEI Format"),
+                    "message": self.env._(
+                        "The entered IMEI %s does not pass "
+                        "the standard Luhn checksum test.",
+                        self.imei_no,
+                    ),
                 }
             }
+        return False
 
-    # @api.constrains("imei_no", "product_id", "manufacturer_id")
-    @api.constrains("imei_no", "product_id")
+    @api.constrains("imei_no", "product_id", "state")
     def _check_valid_imei(self):
         for record in self:
             raw_imei = record.imei_no or ""
@@ -90,33 +90,33 @@ class RepairOrder(models.Model):
 
             if record.imei_required and not imei_clean:
                 raise ValidationError(
-                    _("IMEI Number is required for this repair order.")
+                    self.env._("IMEI Number is required for this repair order.")
                 )
 
             if imei_clean and not self._imei_luhn_is_valid(imei_clean):
                 raise ValidationError(
-                    _(
-                        "The IMEI number '%s' is invalid. Please enter a valid 15-digit IMEI."
+                    self.env._(
+                        """The IMEI number '%s' is invalid.
+                    Please enter a valid 15-digit IMEI.""",
+                        record.imei_no,
                     )
-                    % record.imei_no
                 )
 
-            duplicate = self.search(
-                [
-                    ("id", "!=", record.id),
-                    ("imei_no", "=", imei_clean),
-                    ("state", "not in", ["cancel", "done"]),
-                ],
-                limit=1,
-            )
-            if duplicate:
-                raise ValidationError(
-                    _(
-                        "An active repair order (%(order_name)s) already exists "
-                        "for IMEI No %(imei)s."
-                    )
-                    % {
-                        "order_name": duplicate.name,
-                        "imei": imei_clean,
-                    }
+            if imei_clean:
+                duplicate = self.search(
+                    [
+                        ("id", "!=", record.id),
+                        ("imei_no", "=", imei_clean),
+                        ("state", "not in", ["cancel", "done"]),
+                    ],
+                    limit=1,
                 )
+                if duplicate:
+                    raise ValidationError(
+                        self.env._(
+                            "An active repair order (%(order_name)s) already "
+                            "exists for IMEI No %(imei)s.",
+                            order_name=duplicate.name,
+                            imei=imei_clean,
+                        )
+                    )
