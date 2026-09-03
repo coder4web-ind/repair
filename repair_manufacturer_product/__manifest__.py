@@ -14,6 +14,6 @@
     "data": [
         "views/repair_order_views.xml",
     ],
-    "auto_install": True,
+    "auto_install": False,
     "installable": True,
 }
