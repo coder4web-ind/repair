@@ -11,5 +11,5 @@ class RepairOrder(models.Model):
     )
     partner_id = fields.Many2one(
         comodel_name="res.partner",
-        domain=[("is_manufacturer", "=", False), ("user_ids", "=", False)],
+        domain=[("is_manufacturer", "=", False), ("user_id", "=", False)],
     )
