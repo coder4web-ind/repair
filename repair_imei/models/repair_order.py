@@ -17,8 +17,8 @@ class RepairOrder(models.Model):
         index=True,
         help="15-digit IMEI number of the device being repaired.",
     )
-    imei_required = fields.Boolean(
-        compute="_compute_imei_required",
+    is_imei_required = fields.Boolean(
+        compute="_compute_is_imei_required",
         store=False,
     )
 
@@ -43,24 +43,13 @@ class RepairOrder(models.Model):
 
         return super().write(vals)
 
-    @api.depends(
-        "product_id",
-        "product_id.imei_required",
-        "product_id.categ_id.imei_required",
-    )
-    def _compute_imei_required(self):
+    @api.depends("product_id", "product_id.is_imei_required")
+    def _compute_is_imei_required(self):
         for record in self:
             if not record.product_id:
-                record.imei_required = False
+                record.is_imei_required = False
                 continue
-
-            imei_settings = record.product_id.imei_required or "parent"
-
-            if imei_settings == "parent" and record.product_id.categ_id:
-                cat_required = record.product_id.categ_id.imei_required
-                imei_settings = "yes" if cat_required else "no"
-
-            record.imei_required = imei_settings == "yes"
+            record.is_imei_required = record.product_id.is_imei_required
 
     @api.model
     def _imei_luhn_is_valid(self, value):
@@ -107,7 +96,7 @@ class RepairOrder(models.Model):
             raw_imei = record.imei_number or ""
             imei_clean = self._normalize_imei(raw_imei)
 
-            if record.imei_required and not imei_clean:
+            if record.is_imei_required and not imei_clean:
                 raise ValidationError(
                     self.env._("IMEI Number is required for this repair order.")
                 )

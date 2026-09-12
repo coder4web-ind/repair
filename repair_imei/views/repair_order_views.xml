@@ -6,11 +6,11 @@
         <field name="inherit_id" ref="repair.view_repair_order_form" />
         <field name="arch" type="xml">
             <xpath expr="//field[@name='product_id']" position="after">
-                <field name="imei_required" invisible="1" />
+                <field name="is_imei_required" invisible="1" />
                 <field
                     name="imei_number"
                     placeholder="e.g. 356938035643809"
-                    required="imei_required"
+                    required="is_imei_required"
                     readonly="state != 'draft'"
                 />
             </xpath>

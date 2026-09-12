@@ -5,11 +5,26 @@ from odoo import fields, models
 
 
 class ProductCategory(models.Model):
-    """ "Inherited Product category tracking model context."""
-
     _inherit = "product.category"
 
     imei_required = fields.Boolean(
         string="IMEI Required",
-        help="Enforce IMEI assignment for all products under this category.",
+        default=False,
+        help="Set requirement manually, or inherit from parent category.",
     )
+
+    def _get_computed_imei_required(self):
+        """Recursively walk up category parents to resolve 'parent' setting.
+
+        Resolution order:
+        1. Checks the current category's 'imei_required' value.
+        2. If the current value is False and a parent category exists,
+           it recursively checks the parent's value.
+        3. Continues bubbling up the hierarchy until it finds a True value
+           or reaches the top of the category tree.
+        """
+        self.ensure_one()
+        val = self.imei_required
+        if not val and self.parent_id:
+            return self.parent_id._get_computed_imei_required()
+        return val if val else False

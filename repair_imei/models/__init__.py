@@ -3,4 +3,5 @@
 
 from . import product_category
 from . import product_template
+from . import product
 from . import repair_order

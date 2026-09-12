@@ -2,10 +2,9 @@
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 
 from odoo.exceptions import ValidationError
-from odoo.tests.common import TransactionCase, tagged
+from odoo.tests.common import TransactionCase
 
 
-@tagged("post_install", "-at_install")
 class TestRepairIMEI(TransactionCase):
     """Test suite for IMEI validation and tracking logic in repair orders."""
 
@@ -86,7 +85,7 @@ class TestRepairIMEI(TransactionCase):
                 "imei_number": self.valid_imei,
             }
         )
-        self.assertTrue(repair.imei_required)
+        self.assertTrue(repair.is_imei_required)
 
         with self.assertRaises(ValidationError):
             repair.write({"imei_number": False})
@@ -99,7 +98,7 @@ class TestRepairIMEI(TransactionCase):
                 "imei_number": False,
             }
         )
-        self.assertFalse(repair.imei_required)
+        self.assertFalse(repair.is_imei_required)
 
     def test_04_explicit_yes_override(self):
         repair = self.env["repair.order"].create(
@@ -109,7 +108,7 @@ class TestRepairIMEI(TransactionCase):
                 "imei_number": self.valid_imei,
             }
         )
-        self.assertTrue(repair.imei_required)
+        self.assertTrue(repair.is_imei_required)
 
         with self.assertRaises(ValidationError):
             self.env["repair.order"].create(
@@ -128,7 +127,7 @@ class TestRepairIMEI(TransactionCase):
                 "imei_number": False,
             }
         )
-        self.assertFalse(repair.imei_required)
+        self.assertFalse(repair.is_imei_required)
 
     def test_06_onchange_imei_number_warning(self):
         repair = self.env["repair.order"].new(
@@ -155,7 +154,7 @@ class TestRepairIMEI(TransactionCase):
                 "imei_number": False,
             }
         )
-        self.assertFalse(repair.imei_required)
+        self.assertFalse(repair.is_imei_required)
 
     def test_08_duplicate_imei_raises_validation_error(self):
         self.env["repair.order"].create(
