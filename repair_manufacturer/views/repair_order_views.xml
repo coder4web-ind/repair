@@ -9,7 +9,7 @@
             <xpath expr="//field[@name='partner_id']" position="attributes">
                 <attribute
                     name="domain"
-                >[('is_manufacturer', '=', False), ('user_ids', '=', False)]</attribute>
+                >[('is_manufacturer', '=', False)]</attribute>
             </xpath>
             <xpath expr="//field[@name='partner_id']" position="after">
                 <field name="manufacturer_id" />
