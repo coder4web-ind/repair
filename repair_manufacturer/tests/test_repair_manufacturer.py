@@ -11,23 +11,29 @@ class TestRepairManufacturer(TransactionCase):
     def setUpClass(cls):
         super().setUpClass()
 
-        cls.apple = cls.env["res.partner"].create({
-            "name": "Apple",
-            "is_manufacturer": True,
-        })
-        cls.customer = cls.env["res.partner"].create({
-            "name": "Test Customer",
-            "is_manufacturer": False,
-        })
+        cls.apple = cls.env["res.partner"].create(
+            {
+                "name": "Apple",
+                "is_manufacturer": True,
+            }
+        )
+        cls.customer = cls.env["res.partner"].create(
+            {
+                "name": "Test Customer",
+                "is_manufacturer": False,
+            }
+        )
 
     def test_01_partner_is_manufacturer_flag(self):
         self.assertTrue(self.apple.is_manufacturer)
         self.assertFalse(self.customer.is_manufacturer)
 
     def test_02_repair_order_manufacturer_assignment(self):
-        repair = self.env["repair.order"].create({
-            "partner_id": self.customer.id,
-            "manufacturer_id": self.apple.id,
-        })
+        repair = self.env["repair.order"].create(
+            {
+                "partner_id": self.customer.id,
+                "manufacturer_id": self.apple.id,
+            }
+        )
         self.assertEqual(repair.manufacturer_id, self.apple)
         self.assertEqual(repair.partner_id, self.customer)

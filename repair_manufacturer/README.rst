@@ -1,6 +1,6 @@
-==================
+===================
 Repair Manufacturer
-==================
+===================
 
 This module extends Odoo's standard features to manage electronic device repairs by introducing manufacturer/brand tracking.
 

@@ -1,5 +1,5 @@
 {
-    "name": "Repair Manufacturer Settings",
+    "name": "Repair Manufacturer",
     "summary": """Add Manufacturer for electronic devices""",
     "version": "18.0.1.0.0",
     "category": "Services/Repair",
