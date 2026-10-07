@@ -25,15 +25,9 @@ class TestRepairManufacturer(TransactionCase):
             }
         )
 
-        
-        cls.cat_phones = cls.env["product.category"].create(
-            {"name": "Smartphones"}
-        )
-        cls.cat_laptops = cls.env["product.category"].create(
-            {"name": "Laptops"}
-        )
+        cls.cat_phones = cls.env["product.category"].create({"name": "Smartphones"})
+        cls.cat_laptops = cls.env["product.category"].create({"name": "Laptops"})
 
-        
         cls.product_iphone = cls.env["product.product"].create(
             {
                 "name": "iPhone",
@@ -85,7 +79,7 @@ class TestRepairManufacturer(TransactionCase):
                 "product_id": self.product_iphone.id,
             }
         )
-        
+
         repair.manufacturer_id = False
         repair._onchange_manufacturer_id()
         self.assertFalse(repair.category_id)

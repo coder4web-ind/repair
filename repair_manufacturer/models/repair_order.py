@@ -14,13 +14,13 @@ class RepairOrder(models.Model):
         domain=[("is_manufacturer", "=", True)],
         help="Select manufacturer to filter available categories and products.",
     )
-    
+
     category_id = fields.Many2one(
         comodel_name="product.category",
         string="Product Category",
         help="Filter products by category for the selected manufacturer.",
     )
-    
+
     allowed_category_ids = fields.Many2many(
         comodel_name="product.category",
         compute="_compute_allowed_category_ids",
