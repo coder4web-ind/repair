@@ -15,57 +15,62 @@ class TestRepairIMEI(TransactionCase):
         cls.valid_imei = "490154203237518"
         cls.invalid_imei = "490154203237519"
 
-        cls.category_imei_required = cls.env["product.category"].create(
-            {
-                "name": "Mobile Phones (IMEI Mandatory)",
-                "imei_required": True,
-            }
-        )
+        cls.cat_parent = cls.env["product.category"].create({
+            "name": "Parent Category (Mandatory)",
+            "imei_required": True,
+            "inherit_imei_required": False
+        })
 
-        cls.category_imei_optional = cls.env["product.category"].create(
-            {
-                "name": "Accessories (IMEI Optional)",
-                "imei_required": False,
-            }
-        )
+        cls.cat_child_inherit = cls.env["product.category"].create({
+            "name": "Child Inheriting Parent",
+            "parent_id": cls.cat_parent.id,
+            "imei_required": False,
+            "inherit_imei_required": True,
+        })
 
-        cls.partner = cls.env["res.partner"].create(
-            {
-                "name": "Test Customer",
-            }
-        )
+        cls.cat_grandchild_override = cls.env["product.category"].create({
+            "name": "Grandchild Override (Optional)",
+            "parent_id": cls.cat_child_inherit.id,
+            "imei_required": False,
+            "inherit_imei_required": True,
+        })
 
-        cls.product_parent_required = cls.env["product.product"].create(
-            {
-                "name": "Phone Parent Required",
-                "categ_id": cls.category_imei_required.id,
-                "imei_required": "parent",
-            }
-        )
+        cls.cat_optional = cls.env["product.category"].create({
+            "name": "Accessories (Optional)",
+            "imei_required": False,
+            "inherit_imei_required": False
+        })
 
-        cls.product_parent_optional = cls.env["product.product"].create(
-            {
-                "name": "Accessory Parent Optional",
-                "categ_id": cls.category_imei_optional.id,
-                "imei_required": "parent",
-            }
-        )
+        
+        cls.product_parent_required = cls.env["product.product"].create({
+            "name": "Smartphone (Inherit True)",
+            "categ_id": cls.cat_child_inherit.id,
+            "imei_required": "parent",
+        })
 
-        cls.product_explicit_yes = cls.env["product.product"].create(
-            {
-                "name": "Accessory Forced IMEI",
-                "categ_id": cls.category_imei_optional.id,
-                "imei_required": "yes",
-            }
-        )
+        
+        cls.product_grandchild_optional = cls.env["product.product"].create({
+            "name": "Legacy Device (Inherit False)",
+            "categ_id": cls.cat_grandchild_override.id,
+            "imei_required": "parent",
+        })
 
-        cls.product_explicit_no = cls.env["product.product"].create(
-            {
-                "name": "Phone Exempt IMEI",
-                "categ_id": cls.category_imei_required.id,
-                "imei_required": "no",
-            }
-        )
+        
+        cls.product_explicit_yes = cls.env["product.product"].create({
+            "name": "Forced IMEI",
+            "categ_id": cls.cat_optional.id,
+            "imei_required": "yes",
+        })
+
+        cls.product_explicit_no = cls.env["product.product"].create({
+            "name": "Exempt IMEI",
+            "categ_id": cls.cat_parent.id,
+            "imei_required": "no",
+        })
+
+        cls.partner = cls.env["res.partner"].create({
+            "name": "Test Customer",
+        })
 
     def test_01_luhn_checksum_validation(self):
         repair_model = self.env["repair.order"]
@@ -94,7 +99,7 @@ class TestRepairIMEI(TransactionCase):
         repair = self.env["repair.order"].create(
             {
                 "partner_id": self.partner.id,
-                "product_id": self.product_parent_optional.id,
+                "product_id": self.product_grandchild_optional.id,
                 "imei_number": False,
             }
         )
@@ -133,7 +138,7 @@ class TestRepairIMEI(TransactionCase):
         repair = self.env["repair.order"].new(
             {
                 "partner_id": self.partner.id,
-                "product_id": self.product_parent_optional.id,
+                "product_id": self.product_grandchild_optional.id,
             }
         )
         repair.imei_number = False
@@ -177,7 +182,7 @@ class TestRepairIMEI(TransactionCase):
         repair = self.env["repair.order"].create(
             {
                 "partner_id": self.partner.id,
-                "product_id": self.product_parent_optional.id,
+                "product_id": self.product_grandchild_optional.id,
                 "imei_number": False,
             }
         )
@@ -221,7 +226,6 @@ class TestRepairIMEI(TransactionCase):
             )
 
     def test_12_deep_category_hierarchy_inheritance(self):
-        # Create a 3-level deep hierarchy: Root (True) -> Child -> Grandchild
         cat_root = self.env["product.category"].create(
             {
                 "name": "Root IMEI Required",

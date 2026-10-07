@@ -9,6 +9,7 @@
     "development_status": "Alpha",
     "depends": [
         "repair",
+        "product_manufacturer",
     ],
     "data": [
         "views/repair_order_menu.xml",
